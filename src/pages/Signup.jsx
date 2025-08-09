@@ -1,32 +1,53 @@
-import { useState } from "react";
-import axios from "axios";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5005";
+function Signup() {
+  const { signupUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-export default function Signup() {
-  const [form, setForm] = useState({ name:"", email:"", password:"" });
-  const [msg, setMsg] = useState("");
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
 
-  const onChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      await axios.post(`${API}/auth/signup`, form);
-      setMsg("Signed up! You can now log in.");
-    } catch (err) {
-      setMsg(err.response?.data?.message || "Signup failed");
-    }
+    await signupUser({ name, email, password });
+    navigate("/login"); // go to login after signup
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <h2>Sign up</h2>
-      <input name="name" placeholder="Name" onChange={onChange} />
-      <input name="email" placeholder="Email" onChange={onChange} />
-      <input name="password" type="password" placeholder="Password" onChange={onChange} />
-      <button type="submit">Create account</button>
-      {msg && <p>{msg}</p>}
-    </form>
+    <div className="signup-page">
+      <h1>Sign Up</h1>
+      <form onSubmit={handleSubmit}>
+        <label>Name:</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+
+        <label>Email:</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <label>Password:</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit">Create Account</button>
+      </form>
+    </div>
   );
 }
+
+export default Signup;
