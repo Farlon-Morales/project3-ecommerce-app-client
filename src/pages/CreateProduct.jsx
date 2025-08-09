@@ -1,28 +1,27 @@
-import { useState } from "react";
+import React, { useState, useContext } from "react";
 import api from "../data/api";
-import { useAuth } from "../context/AuthContext";
+import { AuthContext } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateProduct() {
-  const { user, loading } = useAuth();
+  const { user, isLoading, isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "", description: "", price: "", imageUrl: "", category: ""
   });
   const [msg, setMsg] = useState("");
 
-  if (!loading && !user) return <p>You must be logged in to create products.</p>;
+  if (!isLoading && !isLoggedIn) return <p>You must be logged in to create products.</p>;
 
-  const onChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      // backend maps imageUrl => thumbnail for v1
       const payload = { ...form, price: Number(form.price) };
-      const { data } = await api.post("/products", payload);
+      await api.post("/products", payload);
       setMsg("Created!");
-      navigate("/"); // back to list
+      navigate("/");
     } catch (err) {
       setMsg(err.response?.data?.message || "Failed to create product");
     }
@@ -36,7 +35,7 @@ export default function CreateProduct() {
       <input name="price" type="number" step="0.01" placeholder="Price" onChange={onChange} />
       <input name="imageUrl" placeholder="Image URL" onChange={onChange} />
       <input name="category" placeholder="Category (serum, cream, toner...)" onChange={onChange} />
-      <button type="submit">Save</button>
+      <button type="submit" disabled={isLoading}>Save</button>
       {msg && <p>{msg}</p>}
     </form>
   );

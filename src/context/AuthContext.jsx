@@ -1,49 +1,78 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5005";
-const AuthCtx = createContext();
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 
-export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null);
-  const [token, setToken]   = useState(localStorage.getItem("token") || null);
-  const [loading, setLoading] = useState(true);
+export const AuthContext = React.createContext(null);
+
+function AuthProvider({ children }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  const storeToken = (token) => localStorage.setItem("authToken", token);
+  const removeToken = () => localStorage.removeItem("authToken");
+
+  const authenticateUser = async () => {
+    const storedToken = localStorage.getItem("authToken");
+    if (!storedToken) {
+      setIsLoggedIn(false);
+      setIsLoading(false);
+      setUser(null);
+      return;
+    }
+    try {
+      const res = await axios.get(`${API_URL}/auth/verify`, {
+        headers: { Authorization: `Bearer ${storedToken}` },
+      });
+      setIsLoggedIn(true);
+      setUser(res.data);
+    } catch (err) {
+      console.error("Token verification failed:", err);
+      setIsLoggedIn(false);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginUser = async ({ email, password }) => {
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+      // expect { authToken: "..." } from backend
+      storeToken(data.authToken);
+      await authenticateUser();
+      return true;
+    } catch (err) {
+      console.error("Login failed:", err);
+      return false;
+    }
+  };
+
+  const logOutUser = () => {
+    removeToken();
+    authenticateUser();
+  };
 
   useEffect(() => {
-    if (!token) { 
-      setLoading(false); 
-      return; 
-    }
-    axios.get(`${API}/auth/verify`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .then(res => { 
-      setUser(res.data); 
-      setLoading(false); 
-    })
-    .catch(() => { 
-      localStorage.removeItem("token"); 
-      setToken(null); 
-      setUser(null); 
-      setLoading(false); 
-    });
-  }, [token]);
-
-  const login = (jwt) => {
-    localStorage.setItem("token", jwt);
-    setToken(jwt);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
-  };
+    authenticateUser();
+  }, []);
 
   return (
-    <AuthCtx.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        isLoading,
+        user,
+        storeToken,
+        authenticateUser,
+        logOutUser,
+        loginUser,
+      }}
+    >
       {children}
-    </AuthCtx.Provider>
+    </AuthContext.Provider>
   );
 }
-export const useAuth = () => useContext(AuthCtx);
+
+export { AuthProvider };
