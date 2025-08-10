@@ -1,26 +1,58 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CreateProduct from "./pages/CreateProduct";
-import "./App.css";
-import Navbar from "./components/Navbar";
 import ProductsList from "./pages/ProductList";
 import ProductDetails from "./pages/ProductDetails";
 
+import Navbar from "./components/Navbar";
+import PublicOnlyRoute from "./routes/PublicOnlyRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
+
+import "./App.css";
+
 function App() {
   return (
-    <Router>
-      <Navbar /> 
+    <>
+      <Navbar />
       <Routes>
+        {/* Public pages */}
         <Route path="/" element={<Home />} />
-         <Route path="/products" element={<ProductsList />} />
-          <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/create-product" element={<CreateProduct />} />
+        <Route path="/products" element={<ProductsList />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+
+        {/* Public-only pages (hidden if logged in) */}
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicOnlyRoute>
+              <Signup />
+            </PublicOnlyRoute>
+          }
+        />
+
+        {/* Private page example */}
+        <Route
+          path="/create-product"
+          element={
+            <ProtectedRoute>
+              <CreateProduct />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
-    </Router>
+    </>
   );
 }
 
