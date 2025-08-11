@@ -5,10 +5,13 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import CreateProduct from "./pages/CreateProduct";
+import EditProduct from "./pages/EditProduct";
 import ProductsList from "./pages/ProductList";
 import ProductDetails from "./pages/ProductDetails";
+import About from "./pages/About";
 
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import PublicOnlyRoute from "./routes/PublicOnlyRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -23,6 +26,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/about" element={<About />} />
 
         {/* Public-only pages (hidden if logged in) */}
         <Route
@@ -42,7 +46,7 @@ function App() {
           }
         />
 
-        {/* Private page example */}
+        {/* Private pages */}
         <Route
           path="/create-product"
           element={
@@ -51,7 +55,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/products/:id/edit"
+          element={
+            <ProtectedRoute>
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
+
+      {/* Global footer */}
+      <Footer />
     </>
   );
 }

@@ -15,6 +15,11 @@ function Navbar() {
         <button>Home</button>
       </Link>
 
+      {/* Products list link - visible to all */}
+      <Link to="/products">
+        <button>Products</button>
+      </Link>
+
       {isLoggedIn && (
         <>
           <Link to="/create-product">
