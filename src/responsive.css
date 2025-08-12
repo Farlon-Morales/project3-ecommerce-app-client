@@ -1,0 +1,77 @@
+/* ==== Global responsive layer (one-go) ==== */
+
+/* 0) Ensure full sizing */
+html, body, #root { height: 100%; width: 100%; }
+main { width: 100%; }
+
+/* 1) Fluid media */
+img, video, canvas, svg { max-width: 100%; height: auto; display: block; }
+
+/* 2) Full-bleed hero images scale nicely */
+.container-fluid.px-0 img {
+  width: 100%;
+  height: clamp(220px, 40vh, 480px); /* shorter on phones, taller on desktop */
+  object-fit: cover;
+}
+
+/* 3) Make product lists responsive WITHOUT touching JSX */
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+/* 4) Product/card images keep a nice ratio */
+.product-card .product-image,
+.card-img-top {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+}
+@media (max-width: 576px) {
+  .product-card .product-image,
+  .card-img-top {
+    aspect-ratio: 1 / 1; /* friendlier crop on tiny screens */
+  }
+}
+
+/* 5) Forms stay comfy */
+form.card,
+main form:not(.navbar form) {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* 6) Chips / badges readable */
+.badge.rounded-pill {
+  font-size: 1rem;
+  padding: .5rem .9rem;
+  line-height: 1.1;
+}
+
+/* 7) Review images never overflow */
+.review-image {
+  max-width: 100%;
+  height: auto;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: .5rem;
+}
+
+/* 8) Better tap targets */
+button, .btn, .nav-link, .badge { min-height: 44px; }
+
+/* 9) Optional: full-bleed utility */
+.full-bleed {
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 10) Soften vertical spacing on small screens */
+@media (max-width: 576px) {
+  .py-5 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+}

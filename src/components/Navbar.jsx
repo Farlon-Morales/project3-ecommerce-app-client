@@ -10,10 +10,10 @@ function Navbar() {
   // Normalize (remove trailing slash)
   const cleanPath = pathname.replace(/\/+$/, "");
 
-  // Hide "Products" only on the list page
+  // Page checks
   const onProductsListPage = cleanPath === "/products";
-  // Hide "List Product" on the create page
   const onCreateProductPage = cleanPath === "/create-product";
+  const onAboutPage = cleanPath === "/about"; // 👈 check for About page
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-primary w-100 sticky-top">
@@ -34,14 +34,24 @@ function Navbar() {
 
         <div id="mainNav" className="collapse navbar-collapse">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            {/* Hide Products link when already on the products list page */}
             {!onProductsListPage && (
               <li className="nav-item">
                 <Link className="nav-link" to="/products">Products</Link>
               </li>
             )}
-            {isLoggedIn && !onCreateProductPage && (
+
+            {/* Hide About link when already on the About page */}
+            {!onAboutPage && (
               <li className="nav-item">
-                <Link className="nav-link" to="/create-product">List Product</Link>
+                <Link className="nav-link" to="/about">About</Link>
+              </li>
+            )}
+
+            {/* Hide Create Product link on both the create page and the products list page */}
+            {isLoggedIn && !onCreateProductPage && !onProductsListPage && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/create-product">Create Product</Link>
               </li>
             )}
           </ul>
@@ -50,7 +60,10 @@ function Navbar() {
             {isLoggedIn ? (
               <>
                 <span className="navbar-text">{user?.name}</span>
-                <button className="btn btn-outline-light btn-sm" onClick={logOutUser}>
+                <button
+                  className="btn btn-outline-light btn-sm"
+                  onClick={logOutUser}
+                >
                   Logout
                 </button>
               </>

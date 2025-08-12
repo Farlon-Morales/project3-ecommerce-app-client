@@ -1,4 +1,3 @@
-// src/pages/ProductsList.jsx
 import React, { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
@@ -9,7 +8,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5005";
 function ProductsList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // read defaults from the URL (so /products?category=Serum works)
   const [category, setCategory]   = useState(searchParams.get("category") || "");
   const [q, setQ]                 = useState(searchParams.get("q") || "");
   const [minPrice, setMinPrice]   = useState(searchParams.get("minPrice") || "");
@@ -21,21 +19,17 @@ function ProductsList() {
   const [error, setError]         = useState("");
   const [categories, setCategories] = useState([]);
 
-  // (Optional) load categories from API; or keep a static list if you prefer
   useEffect(() => {
     let ignore = false;
     (async () => {
       try {
         const { data } = await axios.get(`${API_URL}/products/categories`);
         if (!ignore) setCategories(data);
-      } catch {
-        // fall back silently
-      }
+      } catch {}
     })();
     return () => { ignore = true; };
   }, []);
 
-  // fetch products whenever search params change
   useEffect(() => {
     let ignore = false;
     (async () => {
@@ -54,7 +48,6 @@ function ProductsList() {
         if (!ignore) setProducts(data);
       } catch (e) {
         if (!ignore) setError("Failed to load products");
-        console.error(e);
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -87,103 +80,121 @@ function ProductsList() {
   };
 
   return (
-    <main className="container-fluid py-4">
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <h1 className="mb-0">Products</h1>
-        <Link to="/create-product" className="btn btn-primary d-none d-sm-inline">Start Selling</Link>
-      </div>
-
-      {/* Filters */}
-      <form onSubmit={applyFilters} className="card p-3 mb-4">
-        <div className="row g-3">
-          <div className="col-12 col-sm-6 col-lg-3">
-            <label className="form-label">Search</label>
-            <input
-              className="form-control"
-              placeholder="Name or description…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
-          </div>
-
-          <div className="col-12 col-sm-6 col-lg-3">
-            <label className="form-label">Category</label>
-            <select
-              className="form-select"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              <option value="">All</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-6 col-lg-2">
-            <label className="form-label">Min price</label>
-            <input
-              className="form-control"
-              type="number"
-              min="0"
-              step="0.01"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-            />
-          </div>
-
-          <div className="col-6 col-lg-2">
-            <label className="form-label">Max price</label>
-            <input
-              className="form-control"
-              type="number"
-              min="0"
-              step="0.01"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-            />
-          </div>
-
-          <div className="col-12 col-lg-2">
-            <label className="form-label">Sort</label>
-            <select
-              className="form-select"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <option value="newest">Newest</option>
-              <option value="price-asc">Price: Low → High</option>
-              <option value="price-desc">Price: High → Low</option>
-            </select>
-          </div>
+    <main className="solarized">
+      {/* Top bar */}
+      <section className="py-3 strip border-top border-bottom">
+        <div className="container d-flex align-items-center justify-content-between">
+          <h1 className="mb-0">Products</h1>
+          <Link to="/create-product" className="btn btn-primary d-none d-sm-inline">
+            Create product
+          </Link>
         </div>
+      </section>
 
-        <div className="d-flex gap-2 mt-3">
-          <button className="btn btn-primary" type="submit">Apply</button>
-          <button className="btn btn-outline-secondary" type="button" onClick={clearFilters}>
-            Clear
-          </button>
-        </div>
-      </form>
+      {/* Sidebar Filters + Products Grid */}
+      <section className="py-4">
+        <div className="container">
+          <div className="row g-4">
+            {/* Sidebar Filters */}
+            <div className="col-12 col-md-3">
+              <form onSubmit={applyFilters} className="card p-3 filter-card">
+                <div className="mb-3">
+                  <label className="form-label">Search</label>
+                  <input
+                    className="form-control"
+                    placeholder="Name or description…"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                  />
+                </div>
 
-      {/* Results */}
-      {loading ? (
-        <div className="d-flex justify-content-center py-5">
-          <div className="spinner-border" role="status" aria-label="Loading products"></div>
-        </div>
-      ) : error ? (
-        <div className="alert alert-danger">{error}</div>
-      ) : products.length === 0 ? (
-        <div className="alert alert-info">No products match your filters.</div>
-      ) : (
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
-          {products.map((product) => (
-            <div className="col" key={product._id}>
-              <ProductCard product={product} onDeleted={handleDeleted} />
+                <div className="mb-3">
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-select"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Min price</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Max price</label>
+                  <input
+                    className="form-control"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Sort</label>
+                  <select
+                    className="form-select"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                  >
+                    <option value="newest">Newest</option>
+                    <option value="price-asc">Price: Low → High</option>
+                    <option value="price-desc">Price: High → Low</option>
+                  </select>
+                </div>
+
+                <div className="d-flex gap-2">
+                  <button className="btn btn-primary w-100" type="submit">Apply</button>
+                  <button className="btn btn-outline-secondary w-100" type="button" onClick={clearFilters}>
+                    Clear
+                  </button>
+                </div>
+              </form>
             </div>
-          ))}
+
+            {/* Products */}
+            <div className="col-12 col-md-9">
+              {loading ? (
+                <div className="d-flex justify-content-center py-5">
+                  <div className="spinner-border" role="status" aria-label="Loading products"></div>
+                </div>
+              ) : error ? (
+                <div className="alert alert-danger">{error}</div>
+              ) : products.length === 0 ? (
+                <div className="alert alert-info">No products match your filters.</div>
+              ) : (
+                <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4 align-items-stretch">
+                  {products.map((product) => (
+                    <div className="col d-flex" key={product._id}>
+                      <ProductCard
+                        product={product}
+                        onDeleted={handleDeleted}
+                        className="card h-100 small-card flex-fill"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      )}
+      </section>
     </main>
   );
 }
