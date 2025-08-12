@@ -1,45 +1,91 @@
+// src/pages/Signup.jsx
 import React, { useState, useContext } from "react";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate, Navigate } from "react-router-dom";
 
 function Signup() {
   const { signupUser, isLoggedIn, isLoading } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError]       = useState("");
 
   if (!isLoading && isLoggedIn) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    // optional quick check
+    if (!name.trim()) return setError("Name is required.");
+
     try {
       await signupUser({ name, email, password });
       navigate("/login"); // or navigate("/") if you auto-login on signup
     } catch (err) {
-      setError(err.message || "Something went wrong");
+      setError(err?.response?.data?.message || err?.message || "Something went wrong");
     }
   };
 
   return (
-    <div className="signup-page">
-      <h1>Sign Up</h1>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <label>Name:</label>
-        <input type="text" value={name} onChange={(e)=>setName(e.target.value)} required />
+    <main className="container py-5" style={{ maxWidth: 560 }}>
+      <h1 className="mb-4">Sign up</h1>
 
-        <label>Email:</label>
-        <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required />
+      {error && <div className="alert alert-danger">{error}</div>}
 
-        <label>Password:</label>
-        <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} required />
+      <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+        <div className="mb-3">
+          <label className="form-label" htmlFor="name">Name</label>
+          <input
+            id="name"
+            className="form-control"
+            type="text"
+            value={name}
+            onChange={(e)=>setName(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+        </div>
 
-        <button type="submit">Create Account</button>
+        <div className="mb-3">
+          <label className="form-label" htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="form-control"
+            type="email"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            required
+            autoComplete="username"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="form-label" htmlFor="password">Password</label>
+          <input
+            id="password"
+            className="form-control"
+            type="password"
+            value={password}
+            onChange={(e)=>setPassword(e.target.value)}
+            required
+            autoComplete="new-password"
+            disabled={isLoading}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
+          {isLoading ? "Creating account…" : "Create account"}
+        </button>
       </form>
-    </div>
+
+      <p className="mt-3 text-muted">
+        Already have an account? <Link to="/login">Log in</Link>
+      </p>
+    </main>
   );
 }
 

@@ -1,5 +1,6 @@
+// src/pages/Login.jsx
 import React, { useState, useContext } from "react";
-import { useNavigate, useLocation, Navigate } from "react-router-dom";
+import { useNavigate, useLocation, Navigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 function Login() {
@@ -28,33 +29,49 @@ function Login() {
   };
 
   return (
-    <div className="login-page">
-      <h1>Login</h1>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <label>Email:</label>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          autoComplete="username"
-        />
+    <main className="container py-5" style={{ maxWidth: 520 }}>
+      <h1 className="mb-4">Log in</h1>
 
-        <label>Password:</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-        />
+      {error && <div className="alert alert-danger">{error}</div>}
 
-        <button type="submit" disabled={isLoading}>
+      <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+        <div className="mb-3">
+          <label className="form-label" htmlFor="email">Email</label>
+          <input
+            id="email"
+            className="form-control"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="username"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="form-label" htmlFor="password">Password</label>
+          <input
+            id="password"
+            className="form-control"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            disabled={isLoading}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
           {isLoading ? "Loading..." : "Log In"}
         </button>
       </form>
-    </div>
+
+      <p className="mt-3 text-muted">
+        Don’t have an account? <Link to="/signup">Sign up</Link>
+      </p>
+    </main>
   );
 }
 
