@@ -28,7 +28,7 @@ function Home() {
           >
             <div className="container text-light">
               <h1 className="display-5 fw-bold mb-2">
-                The marketplace for startup products
+                NovaGoods - The marketplace for startup products
               </h1>
               <p className="lead mb-4">
                 Discover what makers are building next — or list your own and meet your first customers.
